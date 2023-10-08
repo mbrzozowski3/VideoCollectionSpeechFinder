@@ -120,6 +120,24 @@ class VideoTranscriber:
                 self.insert_term(term, document, frequency)
 
 
+    # Perform DB updates as required by the TF-IDF algorithm implementation
+    def update_db_tf_idf(self, path, transcript):
+        # Clean up transcript by removing punctuation and converting to lowercase
+        transcript = transcript.translate(str.maketrans(dict.fromkeys(string.punctuation))).lower()
+        # Create term frequency dictionary
+        termFrequencies = self.get_term_frequencies(transcript)
+        # Add the resulting transcription and term frequency calculation to DB
+        self.insert_document(path, transcript, json.dumps(termFrequencies))
+        # Update the inverted index and global term frequency count in DB
+        self.update_terms(path, termFrequencies)
+
+    
+    # For a given file and its transcript, perform algorithm-dependent DB operations
+    def update_db(self, path, transcript):
+        # TODO - Can perform switch here based on which algorithm is used
+        self.update_db_tf_idf(path, transcript)
+
+
     # Transcribe all sources in a directory and store in the DB (Don't regenerate if already present)
     def transcribe_sources(self):
     
@@ -146,17 +164,9 @@ class VideoTranscriber:
                 if os.path.isfile(temp_audio_path):
                     os.remove(temp_audio_path)
 
-                # Clean up transcript by removing punctuation and converting to lowercase
-                transcript = transcript.translate(str.maketrans(dict.fromkeys(string.punctuation))).lower()
+                # Update DB (implementation and what's under the hood here might be algorithm-dependent)
+                self.update_db(full_video_path, transcript)
 
-                # Create term frequency dictionary
-                termFrequencies = self.get_term_frequencies(transcript)
-
-                # Add the resulting transcription and term frequency calculation to DB
-                self.insert_document(full_video_path, transcript, json.dumps(termFrequencies))
-
-                # Update the inverted index and global term frequency count in DB
-                self.update_terms(full_video_path, termFrequencies)
 
 
     # Clean up resources in destructor
