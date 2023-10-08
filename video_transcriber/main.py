@@ -4,7 +4,7 @@ from video_transcriber import VideoTranscriber
 
 # Define the CLI for this program
 def parse_input():
-    parser = argparse.ArgumentParser(prog='video_transcriber.py', usage='%(prog)s source_content_path [--source_format] [--config_file] [--TRANSCRIPT_OFF]')
+    parser = argparse.ArgumentParser(prog='main.py', usage='%(prog)s source_content_path [--source_format] [--config_file] [--TRANSCRIPT_OFF]')
     parser.add_argument('source_content_path')
     parser.add_argument('--source_format', nargs='?', default='mp4')
     parser.add_argument('--config_file', nargs='?', default='../config.ini')

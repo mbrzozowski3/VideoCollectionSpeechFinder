@@ -4,11 +4,20 @@ def main():
     conn = sqlite3.connect("application.db")
     cur = conn.cursor()
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS transcriptions (
+        CREATE TABLE IF NOT EXISTS documents (
             file varchar(255),
-            transcription text
+            transcription text,
+            termFrequencies text
         )
     """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS terms (
+            term varchar(255),
+            documents text,
+            globalFrequency unsigned integer
+        )
+    """)
+
     conn.close()
 
 
