@@ -51,10 +51,15 @@ class VideoTranscriber:
 
     # Perform speech to text using an API call to OpenAI
     def speech_to_text(self, audio_path):
-        audio_file = open(audio_path, "rb")
-        # TODO: This may fail due to rate limits, etc.
-        result = openai.Audio.transcribe("whisper-1", audio_file)
-        return result.text
+        # Use a dummy transcription instead of API call
+        if (self.__TRANSCRIPT_OFF__):
+            return "DEBUG,! Transcription? - this is a transcription"
+        # Perform transcription
+        else:
+            audio_file = open(audio_path, "rb")
+            # TODO: This may fail due to rate limits, etc.
+            result = openai.Audio.transcribe("whisper-1", audio_file)
+            return result.text
 
     
     # Get existing documents from the DB (return cursor)
@@ -134,30 +139,23 @@ class VideoTranscriber:
                 temp_audio_path = self.create_audio_path(video_path)
                 self.extract_audio(video_path, temp_audio_path)
                 
-                # Use a dummy transcription instead of API call
-                if (self.__TRANSCRIPT_OFF__):
-                    transcript = "DEBUG,! Transcription? - this is a transcription"
-                # Perform transcription
-                else:
-                    transcript = self.speech_to_text(temp_audio_path)
+                # Perform speech to text
+                transcript = self.speech_to_text(temp_audio_path)
 
                 # Remove the temporary audio file we just needed for the API call
                 if os.path.isfile(temp_audio_path):
                     os.remove(temp_audio_path)
 
-                # Remove punctuation
-                transcript = transcript.translate(str.maketrans(dict.fromkeys(string.punctuation)))
-
-                # Convert to all lowercase
-                transcript = transcript.lower()
+                # Clean up transcript by removing punctuation and converting to lowercase
+                transcript = transcript.translate(str.maketrans(dict.fromkeys(string.punctuation))).lower()
 
                 # Create term frequency dictionary
                 termFrequencies = self.get_term_frequencies(transcript)
 
-                # Add the resulting transcription and term frequency calculation to DB so we don't need to perform it anymore
+                # Add the resulting transcription and term frequency calculation to DB
                 self.insert_document(full_video_path, transcript, json.dumps(termFrequencies))
 
-                # Update the inverted index and global term frequency count
+                # Update the inverted index and global term frequency count in DB
                 self.update_terms(full_video_path, termFrequencies)
 
 
