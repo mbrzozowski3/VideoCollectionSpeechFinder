@@ -84,8 +84,8 @@ class VideoTranscriber:
 
 
     # Insert an inverse index containing the document this term appears in and its global frequency
-    def insert_term(self, term, full_video_path, frequency):
-        data = (term, json.dumps([full_video_path]), frequency)
+    def insert_term(self, term, document, frequency):
+        data = (term, json.dumps([document]), frequency)
         self.cur.execute("INSERT INTO terms VALUES (?, ?, ?)", data)
         self.conn.commit()
 
