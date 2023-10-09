@@ -3,6 +3,6 @@
         "openai": "<API KEY>"
     },
     "Paths": {
-        "database": "../database/application.db"
+        "database": "database/application.db"
     }
 }

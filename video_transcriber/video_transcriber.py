@@ -8,7 +8,6 @@ import collections
 import backoff
 import whisper
 import nltk
-
 from moviepy.editor import VideoFileClip
 from nltk.corpus import stopwords
 
@@ -17,9 +16,10 @@ nltk.download("stopwords", quiet=True)
 class VideoTranscriber:
     # Basic initialization
     def __init__(self, args):
+        self.project_root_path = args.project_root_path
         self.sources_path = args.source_content_path
         self.source_format = args.source_format
-        self.config_path = args.config_file
+        self.config_path = self.project_root_path + args.config_file
         self.audio_ext = "mp3"
         self._transcript_off_ = args.TRANSCRIPT_OFF
         self.conn = None
@@ -27,12 +27,12 @@ class VideoTranscriber:
         self.connect_db()
         self.model = whisper.load_model("base.en")
 
-    # Any config file-based setup required
+    # Any config file-based setup required (accessing non-relative locations)
     def config(self):
         with open(self.config_path, encoding="utf-8") as config_file:
             config_dict = json.load(config_file)
             openai.api_key = config_dict["ApiKeys"]["openai"]
-            self.db_path = config_dict["Paths"]["database"]
+            self.db_path = self.project_root_path + config_dict["Paths"]["database"]
 
     # Connect to the database
     def connect_db(self):
