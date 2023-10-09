@@ -1,0 +1,8 @@
+{
+    "ApiKeys": {
+        "openai": "<API KEY>"
+    },
+    "Paths": {
+        "database": "../database/application.db"
+    }
+}
