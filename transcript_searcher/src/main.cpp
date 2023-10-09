@@ -23,5 +23,6 @@ int main(int argc, char** argv) {
     std::string config_path = program.get<std::string>("--config_file");
     std::string full_config_path = PROJECT_BASE_DIR + config_path;
     TranscriptSearcher transcriptSearcher(full_config_path);
+    transcriptSearcher.runSearch();
     return 0;
 }

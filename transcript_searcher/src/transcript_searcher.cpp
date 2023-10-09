@@ -1,10 +1,12 @@
 #include "transcript_searcher.h"
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include <SQLiteCpp/SQLiteCpp.h>
+#include <vector>
 
 #ifndef PROJECT_BASE_DIR
     #define PROJECT_BASE_DIR "../../"
@@ -12,7 +14,7 @@
 
 using namespace rapidjson;
 
-TranscriptSearcher::TranscriptSearcher(std::string config_path) {
+TranscriptSearcher::TranscriptSearcher(std::string config_path, unsigned int max_search_terms) : max_search_terms(max_search_terms) {
     // Read configuration file into JSON Document
     std::ifstream config_file(config_path);
     std::string config_data((std::istreambuf_iterator<char>(config_file)),
@@ -33,5 +35,38 @@ void TranscriptSearcher::connectDatabase() {
 }
 
 void TranscriptSearcher::runSearch() {
+    // Main loop for app where we can keep trying new searches
+    while (true) {
+        // Prompt user to enter search terms and read in the line of input
+        std::cout << "Enter up to " << max_search_terms << " space-separated search terms: ";
+        std::string prompt_input;
+        std::getline(std::cin, prompt_input);
+
+        // Turn the input into a string stream and read out individual search terms from it
+        std::stringstream prompt_input_ss(prompt_input);
+        std::vector<std::string> search_terms;
+        std::string term;
+        // Only read up to `max_search_terms`
+        for (int i = 0; i < max_search_terms; i++) {
+            if (prompt_input_ss >> term) {
+                search_terms.push_back(term);
+            }
+        }
+        // If there is data left in the prompt, user entered too many terms
+        if (prompt_input_ss >> term) {
+            std::cout << std::endl << "Too many terms entered" << std::endl;
+        // Zero terms is not a valid search
+        } else if (search_terms.size() == 0) {
+            std::cout << std::endl << "No terms entered" << std::endl;
+        // User has entered valid number of terms
+        } else {
+            // Normal application path here
+            std::cout << std::endl << "Read " << search_terms.size() << " terms: " << std::endl;
+            for (auto term : search_terms) {
+                std::cout << term << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
 }
 
