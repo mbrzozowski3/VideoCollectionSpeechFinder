@@ -5,9 +5,15 @@ import sqlite3
 import string
 import json
 import collections
+import backoff
+import whisper
+
 from configparser import ConfigParser
 from moviepy.editor import VideoFileClip
 
+import nltk
+nltk.download('stopwords', quiet=True)
+from nltk.corpus import stopwords
 
 class VideoTranscriber:
     # Basic initialization
@@ -20,6 +26,7 @@ class VideoTranscriber:
         self.conn = None
         self.config()
         self.connect_db()
+        self.model = whisper.load_model("base.en")
 
 
     # Any config file-based setup required
@@ -49,17 +56,21 @@ class VideoTranscriber:
         clip.audio.write_audiofile(audio_path, verbose=False, logger=None)
 
 
-    # Perform speech to text using an API call to OpenAI
+    # Wrap API call in backoff
+    @backoff.on_exception(backoff.expo, openai.error.RateLimitError)
+    def transcribe_with_backoff(audio_file):
+        return openai.audio.transcribe("whisper-1", audio_file)
+
+
+    # Perform speech to text
     def speech_to_text(self, audio_path):
-        # Use a dummy transcription instead of API call
+        # Use a dummy transcription
         if (self.__TRANSCRIPT_OFF__):
             return "DEBUG,! Transcription? - this is a transcription"
-        # Perform transcription
+        # Perform transcription using OpenAI whisper model
         else:
-            audio_file = open(audio_path, "rb")
-            # TODO: This may fail due to rate limits, etc.
-            result = openai.Audio.transcribe("whisper-1", audio_file)
-            return result.text
+            result = self.model.transcribe(audio_path, language='english')
+            return result["text"]
 
     
     # Get existing documents from the DB (return cursor)
@@ -84,7 +95,10 @@ class VideoTranscriber:
 
     # Calculate a dictionary of term frequencies for a transcript
     def get_term_frequencies(self, transcript):
-        wordList = transcript.split()
+        # Get stop words - 50 most common words which offer little help in differentiating candidates
+        stop_words = stopwords.words('english')
+        # Remove stop words from term frequency counting
+        wordList = [word for word in transcript.split() if word not in stop_words]
         return collections.Counter(wordList)
 
 
@@ -111,12 +125,13 @@ class VideoTranscriber:
             # If it already exists, update instead of inserting a new entry
             if entry:
                 # Retrieve the inverted index array of documents which contain this term, and add this new document to it
-                documents = json.loads(entry[1])
-                documents.append(document)
+                documents = (json.loads(entry[1])).append(document)
                 # Retrieve the global frequency and increment it by the number of times the term appears in this new document
-                globalFrequency = entry[2]
-                self.update_term(term, documents, globalFrequency + frequency)
+                globalFrequency = entry[2] + frequency
+                # Update this term with its new list of documents and global frequency
+                self.update_term(term, documents, globalFrequency)
             else:
+                # Initialize a new term with this document and its frequency
                 self.insert_term(term, document, frequency)
 
 
@@ -166,7 +181,6 @@ class VideoTranscriber:
 
                 # Update DB (implementation and what's under the hood here might be algorithm-dependent)
                 self.update_db(full_video_path, transcript)
-
 
 
     # Clean up resources in destructor
