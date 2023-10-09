@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 class TranscriptSearcher {
     public:
@@ -7,5 +8,6 @@ class TranscriptSearcher {
         const unsigned int max_search_terms;
     private:
         void connectDatabase();
+        bool readSearchTerms(std::vector<std::string>& search_terms);
         std::string database_path;
 };
