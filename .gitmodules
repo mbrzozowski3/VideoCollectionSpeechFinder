@@ -1,0 +1,3 @@
+[submodule "transcript_searcher/SQLiteCpp"]
+	path = transcript_searcher/SQLiteCpp
+	url = https://github.com/SRombauts/SQLiteCpp.git
