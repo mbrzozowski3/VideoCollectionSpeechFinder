@@ -7,7 +7,8 @@ def main():
         CREATE TABLE IF NOT EXISTS documents (
             file varchar(255),
             transcription text,
-            termFrequencies text
+            termFrequencies text,
+            numTerms unsigned integer
         )
     """)
     cur.execute("""

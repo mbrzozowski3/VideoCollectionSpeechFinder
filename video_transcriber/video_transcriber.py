@@ -77,9 +77,9 @@ class VideoTranscriber:
         return result
 
     # Insert a document for a given video path into the DB
-    def insert_document(self, video_path, transcript, term_frequencies):
-        data = (video_path, transcript, term_frequencies)
-        self.cur.execute("INSERT INTO documents VALUES (?, ?, ?)", data)
+    def insert_document(self, video_path, transcript, term_frequencies, num_terms):
+        data = (video_path, transcript, term_frequencies, num_terms)
+        self.cur.execute("INSERT INTO documents VALUES (?, ?, ?, ?)", data)
         self.conn.commit()
 
     # Calculate a dictionary of term frequencies for a transcript
@@ -125,7 +125,7 @@ class VideoTranscriber:
         transcript = transcript.translate(str.maketrans(dict.fromkeys(string.punctuation))).lower()
         # Generate term frequencies and use them to create a new document and update terms
         term_frequencies = self.get_term_frequencies(transcript)
-        self.insert_document(path, transcript, json.dumps(term_frequencies))
+        self.insert_document(path, transcript, json.dumps(term_frequencies), len(term_frequencies))
         self.update_terms(path, term_frequencies)
 
     # For a given file and its transcript, perform algorithm-dependent DB operations
