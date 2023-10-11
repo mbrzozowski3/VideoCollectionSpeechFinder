@@ -12,8 +12,8 @@ def main():
         print(entry)
     cur.execute("DELETE FROM documents")
     conn.commit()
-    data = ("term", "[\"path/document1\", \"other/path/document2\"]", 5)
-    cur.execute("INSERT INTO terms VALUES (?, ?, ?)", data)
+    data = ("term", "[\"path/document1\", \"other/path/document2\"]")
+    cur.execute("INSERT INTO terms VALUES (?, ?)", data)
     conn.commit()
     result = cur.execute("SELECT * FROM terms")
     for entry in result.fetchall():

@@ -14,8 +14,7 @@ def main():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS terms (
             term varchar(255),
-            documents text,
-            globalFrequency unsigned integer
+            documents text
         )
     """)
 

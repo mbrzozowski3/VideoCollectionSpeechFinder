@@ -90,34 +90,33 @@ class VideoTranscriber:
         word_list = [word for word in transcript.split() if word not in stop_words]
         return collections.Counter(word_list)
 
-    # Insert an inverse index containing the document this term appears in and its global frequency
-    def insert_term(self, term, document, frequency):
-        data = (term, json.dumps([document]), frequency)
-        self.cur.execute("INSERT INTO terms VALUES (?, ?, ?)", data)
+    # Insert an inverse index containing the document this term appears in
+    def insert_term(self, term, document):
+        data = (term, json.dumps([document]))
+        self.cur.execute("INSERT INTO terms VALUES (?, ?)", data)
         self.conn.commit()
 
-    # Update DB with additional inverted index document and global frequency value
-    def update_term(self, term, documents, frequency):
-        data = (json.dumps(documents), frequency, term)
-        self.cur.execute("UPDATE terms SET documents = ?, globalFrequency = ? WHERE term = ?", data)
+    # Update DB with additional inverted index document
+    def update_term(self, term, documents):
+        data = (json.dumps(documents), term)
+        self.cur.execute("UPDATE terms SET documents = ? WHERE term = ?", data)
         self.conn.commit()
 
-    # For a dict of terms and their frequencies in a given document, update the global state of that term in DB
+    # For a dict of terms in a given document, update the global state of that term in DB
     def update_terms(self, document, term_frequencies):
-        for term, frequency in term_frequencies.items():
+        for term, _ in term_frequencies.items():
             result = self.get_term(term)
             # If exists, update entry, else create a new one
             entry = result.fetchone()
             if entry:
-                # Add document to inverted index, and update global frequency
+                # Add document to inverted index
                 documents = (json.loads(entry[1]))
                 documents.append(document)
-                global_frequency = entry[2] + frequency
                 # Update term
-                self.update_term(term, documents, global_frequency)
+                self.update_term(term, documents)
             else:
-                # Initialize a new term with this document and its frequency
-                self.insert_term(term, document, frequency)
+                # Initialize a new term with this document
+                self.insert_term(term, document)
 
     # Perform DB updates as required by the TF-IDF algorithm implementation
     def update_db_tf_idf(self, path, transcript):
