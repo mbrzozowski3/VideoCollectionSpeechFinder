@@ -3,7 +3,7 @@ project(TranscriptSearcher)
 set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
-set(SOURCES ${SOURCE_DIR}/main.cpp ${SOURCE_DIR}/transcript_searcher.cpp)
+set(SOURCES ${SOURCE_DIR}/main.cpp ${SOURCE_DIR}/transcript_searcher.cpp ${SOURCE_DIR}/tf_idf_transcript_search.cpp)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/SQLiteCpp)
 
