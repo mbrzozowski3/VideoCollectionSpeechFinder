@@ -3,10 +3,10 @@
 #include <sstream>
 
 TranscriptSearcher::TranscriptSearcher(
-    std::string database_path,
-    std::string search_algorithm,
-    unsigned int max_search_terms,
-    unsigned int num_best_results
+    const std::string database_path,
+    const std::string search_algorithm,
+    const unsigned int max_search_terms,
+    const unsigned int num_best_results
 ) : max_search_terms(max_search_terms), num_best_results(num_best_results) {
     if (search_algorithm == "tf-idf") {
         transcript_search_algorithm = new TfIdfTranscriptSearch(database_path);
@@ -17,7 +17,7 @@ TranscriptSearcher::TranscriptSearcher(
 
 bool TranscriptSearcher::performNewSearch() {
     // Prompt user to enter search terms and read in the line of input
-    std::cout << "\"ENTER\" to continue, \"exit\" to quit" << std::endl;
+    std::cout << "ENTER to continue, \"exit\" to quit" << std::endl;
     std::string prompt_input;
     std::getline(std::cin, prompt_input);
 
@@ -34,7 +34,7 @@ bool TranscriptSearcher::performNewSearch() {
 
 bool TranscriptSearcher::readSearchTerms(std::vector<std::string>& search_terms) {
     // Prompt user to enter search terms and read in the line of input
-    std::cout << "Enter up to " << max_search_terms << " space-separated search terms: ";
+    std::cout << "Enter up to " << max_search_terms << " search terms: ";
     std::string prompt_input;
     std::getline(std::cin, prompt_input);
 
@@ -79,7 +79,7 @@ void TranscriptSearcher::runSearch() {
     }
 }
 
-void TranscriptSearcher::outputResult(std::vector<scored_transcript>& result) {
+void TranscriptSearcher::outputResult(const std::vector<scored_transcript>& result) {
     for (auto& element : result) {
         std::cout << "Score: " << element.second << " | File: " << element.first << std::endl;
     }

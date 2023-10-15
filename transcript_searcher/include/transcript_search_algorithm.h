@@ -22,8 +22,8 @@ class TranscriptSearchAlgorithm {
          * @param best_matches Vector to store the transcript-score pairs
         */
         virtual void getBestTranscriptMatches(
-            std::vector<std::string>& search_terms,
-            unsigned int k,
+            const std::vector<std::string>& search_terms,
+            const unsigned int k,
             std::vector<scored_transcript>& best_matches
         ) = 0;
 };

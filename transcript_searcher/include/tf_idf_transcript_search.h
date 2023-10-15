@@ -24,7 +24,7 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
          * 
          * @param database_path Path to database which stores corpus state for this search algorithm
         */
-        TfIdfTranscriptSearch(std::string database_path);
+        TfIdfTranscriptSearch(const std::string database_path);
 
         /**
          * Uses search terms to determine the k-best matching transcripts and stores the 
@@ -35,8 +35,8 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
          * @param best_matches Vector to store the transcript-score pairs
         */
         void getBestTranscriptMatches(
-            std::vector<std::string>& search_terms,
-            unsigned int k,
+            const std::vector<std::string>& search_terms,
+            const unsigned int k,
             std::vector<scored_transcript>& best_matches
         );
 
@@ -46,7 +46,7 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
          * 
          * @param database_path Path to database
         */
-        void connectDatabase(std::string database_path);
+        void connectDatabase(const std::string database_path);
 
         /**
          * Perform term-based preprocessing based on the input search terms
@@ -67,7 +67,7 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
          * @param candidate_documents Map of documents-tf-idf-score to be populated by the method (score initialized to zero)
          * */
         void preprocessTermsCandidates(
-            std::vector<std::string>& search_terms,
+            const std::vector<std::string>& search_terms,
             std::unordered_map<std::string, double>& search_terms_idfs,
             std::unordered_map<std::string, double>& candidate_documents
         );
@@ -83,8 +83,8 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
          * 
         */
         int getDocumentTermFrequencies(
-            std::string& document,
-            std::vector<std::string>& search_terms,
+            const std::string& document,
+            const std::vector<std::string>& search_terms,
             std::unordered_map<std::string, int>& document_term_frequencies
         );
 
@@ -96,8 +96,8 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
          * @param candidate_documents_scores Map of candidate documents and their sum of TF-IDF scores of all search terms
         */
         void calculateTfIdfScores(
-            std::vector<std::string>& search_terms,
-            std::unordered_map<std::string, double>& search_terms_idfs,
+            const std::vector<std::string>& search_terms,
+            const std::unordered_map<std::string, double>& search_terms_idfs,
             std::unordered_map<std::string, double>& candidate_documents_scores
         );
 
@@ -110,8 +110,8 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
          * @return Vector of pairs containing best matching documents and their scores
         */
         std::vector<scored_transcript> getBestDocuments(
-            std::unordered_map<std::string, double>& candidate_documents_scores,
-            unsigned int k
+            const std::unordered_map<std::string, double>& candidate_documents_scores,
+            const unsigned int k
         );
 
         // Custom destructor to delete dynamic resources

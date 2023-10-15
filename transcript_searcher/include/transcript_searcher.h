@@ -27,10 +27,10 @@ class TranscriptSearcher {
          * @param num_best_results Number of top-scoring results to return to the user
         */
         TranscriptSearcher(
-            std::string database_path,
-            std::string search_algorithm = "tf-idf",
-            unsigned int max_search_terms = 5,
-            unsigned int num_best_results = 3
+            const std::string database_path,
+            const std::string search_algorithm = "tf-idf",
+            const unsigned int max_search_terms = 5,
+            const unsigned int num_best_results = 3
         );
 
         /**
@@ -64,7 +64,7 @@ class TranscriptSearcher {
          * 
          * @param result Vector of scored transcripts, ordered by score
         */
-        void outputResult(std::vector<scored_transcript>& result);
+        void outputResult(const std::vector<scored_transcript>& result);
 
         // Maximum number of terms the transcript searcher will accept
         const unsigned int max_search_terms;

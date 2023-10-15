@@ -7,16 +7,16 @@
 #include <functional>
 #include <algorithm>
 
-TfIdfTranscriptSearch::TfIdfTranscriptSearch(std::string database_path) {
+TfIdfTranscriptSearch::TfIdfTranscriptSearch(const std::string database_path) {
     connectDatabase(database_path);
 }
 
-void TfIdfTranscriptSearch::connectDatabase(std::string database_path) {
+void TfIdfTranscriptSearch::connectDatabase(const std::string database_path) {
     db = new SQLite::Database(database_path);
 }
 
 void TfIdfTranscriptSearch::preprocessTermsCandidates(
-    std::vector<std::string>& search_terms,
+    const std::vector<std::string>& search_terms,
     std::unordered_map<std::string, double>& search_terms_idfs,
     std::unordered_map<std::string, double>& candidate_documents
 ) {
@@ -47,8 +47,8 @@ void TfIdfTranscriptSearch::preprocessTermsCandidates(
 }
 
 int TfIdfTranscriptSearch::getDocumentTermFrequencies(
-    std::string& document,
-    std::vector<std::string>& search_terms,
+    const std::string& document,
+    const std::vector<std::string>& search_terms,
     std::unordered_map<std::string, int>& document_term_frequencies
 ) {
     // Query term frequency dict and total number of terms in this document
@@ -77,8 +77,8 @@ int TfIdfTranscriptSearch::getDocumentTermFrequencies(
 }
 
 void TfIdfTranscriptSearch::calculateTfIdfScores(
-    std::vector<std::string>& search_terms,
-    std::unordered_map<std::string, double>& search_terms_idfs,
+    const std::vector<std::string>& search_terms,
+    const std::unordered_map<std::string, double>& search_terms_idfs,
     std::unordered_map<std::string, double>& candidate_documents_scores
 ) {
     // Compute document-sum TF-IDF for each candidate document
@@ -103,8 +103,8 @@ bool Compare(scored_transcript a, scored_transcript b) {
 }
 
 std::vector<scored_transcript> TfIdfTranscriptSearch::getBestDocuments(
-    std::unordered_map<std::string, double>& candidate_documents_scores,
-    unsigned int k
+    const std::unordered_map<std::string, double>& candidate_documents_scores,
+    const unsigned int k
 ) {
     std::priority_queue<scored_transcript, std::vector<scored_transcript>, std::function<bool(scored_transcript, scored_transcript)>> minHeap (Compare);
     for (auto d_it = candidate_documents_scores.begin(); d_it != candidate_documents_scores.end(); d_it++) {
@@ -123,8 +123,8 @@ std::vector<scored_transcript> TfIdfTranscriptSearch::getBestDocuments(
 
 }
 void TfIdfTranscriptSearch::getBestTranscriptMatches(
-    std::vector<std::string>& search_terms,
-    unsigned int k,
+    const std::vector<std::string>& search_terms,
+    const unsigned int k,
     std::vector<scored_transcript>& best_matches
 ) {
     // Compute the IDF values for each term and gather set of all documents referenced by any search term
