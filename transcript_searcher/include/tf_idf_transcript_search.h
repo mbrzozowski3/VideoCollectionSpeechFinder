@@ -114,9 +114,9 @@ class TfIdfTranscriptSearch : public TranscriptSearchAlgorithm {
             const unsigned int k
         );
 
-        // Custom destructor to delete dynamic resources
-        ~TfIdfTranscriptSearch();
+        // Default destructor
+        ~TfIdfTranscriptSearch() = default;
 
-        // Pointer to database instance
-        SQLite::Database* db = nullptr;
+        // Unique pointer to database instance
+        std::unique_ptr<SQLite::Database> db;
 };

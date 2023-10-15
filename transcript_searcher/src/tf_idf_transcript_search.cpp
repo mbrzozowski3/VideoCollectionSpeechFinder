@@ -12,7 +12,7 @@ TfIdfTranscriptSearch::TfIdfTranscriptSearch(const std::string database_path) {
 }
 
 void TfIdfTranscriptSearch::connectDatabase(const std::string database_path) {
-    db = new SQLite::Database(database_path);
+    db = std::make_unique<SQLite::Database>(database_path);
 }
 
 void TfIdfTranscriptSearch::preprocessTermsCandidates(
@@ -137,11 +137,3 @@ void TfIdfTranscriptSearch::getBestTranscriptMatches(
         
     best_matches = getBestDocuments(candidate_documents_scores, k);
 }
-
-TfIdfTranscriptSearch::~TfIdfTranscriptSearch() {
-    if (db) {
-        delete db;
-    }
-}
-
-

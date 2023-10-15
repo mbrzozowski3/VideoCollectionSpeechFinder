@@ -13,6 +13,9 @@ class TranscriptSearchAlgorithm {
         // Default constructor
         TranscriptSearchAlgorithm() = default;
 
+        // Remove copy constructor and copy assignment
+        TranscriptSearchAlgorithm(const TranscriptSearchAlgorithm&) = delete;
+        TranscriptSearchAlgorithm& operator= (const TranscriptSearchAlgorithm&) = delete;
         /**
          * Uses search terms to determine the k-best matching transcripts and stores the 
          * transcripts and their scores in a Vector.
