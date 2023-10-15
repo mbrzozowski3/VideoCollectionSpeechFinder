@@ -33,12 +33,15 @@ def main():
         config_dict = json.load(config_file)
         db_path = project_root_path + config_dict["Paths"]["database"]
 
-    video_collection_speech_processor = VideoCollectionSpeechProcessor(
-        db_path,
-        args.speech_model,
-        args.search_algorithm
-    )
-    video_collection_speech_processor.process_sources(args.source_path, args.source_format)
+    try:
+        video_collection_speech_processor = VideoCollectionSpeechProcessor(
+            db_path,
+            args.speech_model,
+            args.search_algorithm
+        )
+        video_collection_speech_processor.process_sources(args.source_path, args.source_format)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":

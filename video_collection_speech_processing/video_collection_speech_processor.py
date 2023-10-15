@@ -31,8 +31,7 @@ class VideoCollectionSpeechProcessor:
         if (search_algorithm == "tf-idf"):
             self.__transcript_preprocessor = TfIdfTranscriptPreprocessor(db_path)
         else:
-            print(f"Invalid search algorithm \"{search_algorithm}\"")
-            exit(1)
+            raise Exception(f"Exception: Invalid search algorithm \"{search_algorithm}\"")
 
     def process_sources(self, source_path, source_format="mp4"):
         """Transcribe and preprocess sources of a given format in target directory
