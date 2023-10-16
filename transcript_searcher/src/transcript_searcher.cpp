@@ -8,6 +8,7 @@ TranscriptSearcher::TranscriptSearcher(
     const unsigned int max_search_terms,
     const unsigned int num_best_results
 ) : max_search_terms(max_search_terms), num_best_results(num_best_results) {
+    // Initialize a search algorithm
     if (search_algorithm == "tf-idf") {
         transcript_search_algorithm = new TfIdfTranscriptSearch(database_path);
     } else {
@@ -16,12 +17,12 @@ TranscriptSearcher::TranscriptSearcher(
 }
 
 bool TranscriptSearcher::performNewSearch() {
-    // Prompt user to enter search terms and read in the line of input
+    // Prompt user to continue or exit
     std::cout << "ENTER to continue, \"exit\" to quit" << std::endl;
     std::string prompt_input;
     std::getline(std::cin, prompt_input);
 
-    // Turn the input into a string stream and read out individual search terms from it
+    // Turn the input into a string stream and read user's entry from it
     std::stringstream prompt_input_ss(prompt_input);
     std::string term;
     if (prompt_input_ss >> term) {
@@ -47,6 +48,7 @@ bool TranscriptSearcher::readSearchTerms(std::vector<std::string>& search_terms)
             search_terms.push_back(term);
         }
     }
+
     // If there is data left in the prompt, user entered too many terms
     if (prompt_input_ss >> term) {
         std::cout << std::endl << "Too many terms entered" << std::endl;
@@ -68,19 +70,40 @@ void TranscriptSearcher::runSearch() {
             if (readSearchTerms(search_terms)) {
                 // Get only `num_best_results` results
                 std::vector<scored_transcript> best_transcripts;
+
+                // Time the search function
+                auto start_time = std::chrono::high_resolution_clock::now();
+
+                // Perform search
                 transcript_search_algorithm->getBestTranscriptMatches(search_terms, num_best_results, best_transcripts);
 
+                // Finish timing search function
+                auto end_time = std::chrono::high_resolution_clock::now();
+                auto duration = end_time - start_time;
+
                 // Output the results
-                outputResult(best_transcripts);
+                outputResult(best_transcripts, duration);
             }
         } else {
+            // User exit
             return;
         }
     }
 }
 
-void TranscriptSearcher::outputResult(const std::vector<scored_transcript>& result) {
+void TranscriptSearcher::outputResult(
+    const std::vector<scored_transcript>& result,
+    const std::chrono::nanoseconds duration_ns
+) {
+    // Format
+    std::cout << std::setprecision(2) << std::fixed;
+
+    // Output elapsed time
+    auto duration_microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration_ns);
+    std::cout << "Search took " << std::to_string(duration_microseconds.count()) << " microseconds." << std::endl;
+
+    // Output each of the results
     for (auto& element : result) {
-        std::cout << "Score: " << element.second << " | File: " << element.first << std::endl;
+        std::cout << "Score: " << std::setw(5) << std::left << element.second << " | File: " << element.first << std::endl;
     }
 }

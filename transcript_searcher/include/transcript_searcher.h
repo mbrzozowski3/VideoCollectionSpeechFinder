@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <SQLiteCpp/SQLiteCpp.h>
 #include "tf_idf_transcript_search.h"
+#include <chrono>
 
 /**
  * Search a corpus of transcripts using a number of user-provided search terms.
@@ -63,8 +64,12 @@ class TranscriptSearcher {
          * Formats and outputs the results for the user.
          * 
          * @param result Vector of scored transcripts, ordered by score
+         * @param duration_ns Execution time (in nanoseconds) of the search
         */
-        void outputResult(const std::vector<scored_transcript>& result);
+        void outputResult(
+            const std::vector<scored_transcript>& result,
+            const std::chrono::nanoseconds duration_ns
+        );
 
         // Maximum number of terms the transcript searcher will accept
         const unsigned int max_search_terms;

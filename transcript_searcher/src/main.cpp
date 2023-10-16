@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
     std::string database_relative_path = config["Paths"]["database"].GetString();
     std::string database_abspath = PROJECT_BASE_DIR + database_relative_path;
 
+
     // Get search algorithm from args
     std::string search_algorithm = program.get<std::string>("search_algorithm");
 
@@ -49,8 +50,9 @@ int main(int argc, char** argv) {
     try {
         TranscriptSearcher transcript_searcher(database_abspath, search_algorithm);
         transcript_searcher.runSearch();
-    } catch (std::exception& e) {
-        std::cout << e.what();
+    } catch (const std::runtime_error& e) {
+        std::cerr << e.what() << std::endl;
+        std::exit(1);
     }
 
     return 0;
