@@ -6,9 +6,9 @@ The `VideoCollectionSpeechFinder` is built to search an unlabeled collection of 
 The tool uses the [`OpenAI Whisper Model`](https://github.com/openai/whisper) to perfom speech-to-text on the video collection using the model size of user's choice (larger models are more accurate, run slower and use more memory).
 To search the collection of transcripts, various search algorithms can be implemented - the current base implementation uses `TF-IDF` (Term Frequency - Inverse Document Frequency).
 
-Preprocessing can be performed at transcription-time to generate values which are search-independent (for instance, maintaining a reverse-index from terms to their containing documents for `TF-IDF`) to improve search-time performance.
+Preprocessing can be performed at transcription-time to generate values which are search term-agnostic (for instance, maintaining a reverse-index from terms to their containing documents for `TF-IDF`) to improve search-time performance.
 
-Transcription and preprocessing is handled by the [`video_collection_speech_processing`](#video_collection_speech_processing) Python module, and search is handled by the [`transcript_searcher`](#transcript_seacher) C++ module.
+Transcription and preprocessing is handled by the [`video_collection_speech_processing`](#video_collection_speech_processing) Python module, and search is handled by the [`transcript_searcher`](#transcript_searcher) C++ module.
 
 The two modules interact with an intermediate `SQLite` [`database`](#database), which also maintains offline state avoiding the expensive retranscription cost of already processed videos.
 
