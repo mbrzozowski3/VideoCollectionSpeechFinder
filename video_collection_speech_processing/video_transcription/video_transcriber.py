@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from moviepy.editor import VideoFileClip
 import whisper
@@ -29,7 +30,7 @@ class VideoTranscriber:
             Text transcription of the speech detected in the source file
         """
         # Split audio from video into a temporary audio file
-        audio_path = "temp.mp3"
+        audio_path = tempfile.NamedTemporaryFile().name + ".mp3"
         self.__extract_audio(path, audio_path)
 
         # Perform speech-to-text
