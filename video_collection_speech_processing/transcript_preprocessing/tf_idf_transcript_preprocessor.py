@@ -1,3 +1,4 @@
+import sys
 import collections
 import json
 import string
@@ -6,7 +7,7 @@ import nltk
 from nltk.corpus import stopwords
 import sqlite3
 
-from transcript_preprocessing.transcript_preprocessor import TranscriptPreprocessor
+from .transcript_preprocessor import TranscriptPreprocessor
 
 nltk.download("stopwords", quiet=True)
 
@@ -169,8 +170,7 @@ class TfIdfTranscriptPreprocessor(TranscriptPreprocessor):
         Returns:
             Boolean true if file has already been processed false otherwise
         """
-        if not self.__existing_documents:
-            self.__existing_documents = self.__get_documents().fetchall()
+        self.__existing_documents = self.__get_documents().fetchall()
         return (path,) in self.__existing_documents
 
     def __get_documents(self):

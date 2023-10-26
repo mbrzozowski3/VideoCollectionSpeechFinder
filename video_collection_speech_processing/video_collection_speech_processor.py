@@ -1,8 +1,9 @@
 import glob
 import os
+import sys
 
-from transcript_preprocessing.tf_idf_transcript_preprocessor import TfIdfTranscriptPreprocessor
-from video_transcription.video_transcriber import VideoTranscriber
+from .transcript_preprocessing import TfIdfTranscriptPreprocessor
+from .video_transcription import VideoTranscriber
 
 
 class VideoCollectionSpeechProcessor:
@@ -12,7 +13,7 @@ class VideoCollectionSpeechProcessor:
     on the resulting transcriptions for later use in the designated search algorithm frontend.
     """
 
-    def __init__(self, db_path, speech_model="base.en", search_algorithm="tf-df"):
+    def __init__(self, db_path, speech_model="base.en", search_algorithm="tf-idf"):
         """Initialize instance with a database, speech model, and search algorithm
 
         Args:
@@ -41,7 +42,11 @@ class VideoCollectionSpeechProcessor:
                 Path to directory for which to process sources
             source_format: String
                 File format to process
+        Returns:
+            Number of new sources processed
         """
+        # Counter for number of new sources
+        counter = 0
         # Search for all files of type `source_format` in `source_path` directory
         for video_path in glob.glob(f"{source_path}/*.{source_format}"):
             # Take absolute paths for uniqueness
@@ -49,10 +54,13 @@ class VideoCollectionSpeechProcessor:
 
             # Don't process previously handled files
             if not self.__transcript_preprocessor.exists(video_abspath):
+                # Update counter
+                counter += 1
                 # Get raw text transcript
                 transcript = self.__video_transcriber.transcribe_source(video_abspath)
                 # Perform preprocessing (algorithm dependent)
                 self.__transcript_preprocessor.preprocess(video_abspath, transcript)
+        return counter
 
 
 def main():
