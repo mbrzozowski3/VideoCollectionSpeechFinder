@@ -1,7 +1,19 @@
+import argparse
 import sqlite3
 
+# Define the CLI for this program
+def parse_input():
+    parser = argparse.ArgumentParser(
+        prog='setup.py',
+        usage='%(prog)s [database_path]'
+    )
+    parser.add_argument('database_path', nargs='?', default='application.db')
+    return parser.parse_args()
+
+
 def main():
-    conn = sqlite3.connect("application.db")
+    args = parse_input()
+    conn = sqlite3.connect(args.database_path)
     cur = conn.cursor()
     cur.execute("""
         CREATE TABLE IF NOT EXISTS documents (
@@ -17,7 +29,6 @@ def main():
             documents text
         )
     """)
-
     conn.close()
 
 

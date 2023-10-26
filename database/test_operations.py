@@ -1,25 +1,26 @@
-import os
+import argparse
 import sqlite3
 
+# Define the CLI for this program
+def parse_input():
+    parser = argparse.ArgumentParser(
+        prog='test_operations.py',
+        usage='%(prog)s [database_path]'
+    )
+    parser.add_argument('database_path', nargs='?', default='application.db')
+    return parser.parse_args()
+
 def main():
-    conn = sqlite3.connect("application.db")
+    args = parse_input()
+    conn = sqlite3.connect(args.database_path)
+
     cur = conn.cursor()
-    data = (os.getcwd(), "this is a test of a transcription", "{\"this\": 1, \"is\": 1 \"a\": 2, \"test\": 1, \"of\": 1, \"transcription\": 1}", 6)
-    cur.execute("INSERT INTO documents VALUES (?, ?, ?, ?)", data)
-    conn.commit()
     result = cur.execute("SELECT * FROM documents")
     for entry in result.fetchall():
         print(entry)
-    cur.execute("DELETE FROM documents")
-    conn.commit()
-    data = ("term", "[\"path/document1\", \"other/path/document2\"]")
-    cur.execute("INSERT INTO terms VALUES (?, ?)", data)
-    conn.commit()
     result = cur.execute("SELECT * FROM terms")
     for entry in result.fetchall():
         print(entry)
-    cur.execute("DELETE FROM terms")
-    conn.commit()
 
     conn.close()
 
