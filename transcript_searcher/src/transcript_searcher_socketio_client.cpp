@@ -10,7 +10,7 @@
 
 class TranscriptSearcherSocketIoClient {
     public:
-        TranscriptSearcherSocketIoClient(std::string database_path = "C:\\Users\\mikeb\\Workspace\\ProgrammingProjects\\Dialocate\\database\\application.db") : running(true) {
+        TranscriptSearcherSocketIoClient(std::string database_path) {
             client.set_open_listener(std::bind(&TranscriptSearcherSocketIoClient::on_connected, this));
             client.set_close_listener(std::bind(&TranscriptSearcherSocketIoClient::on_close, this, std::placeholders::_1));
             client.set_fail_listener(std::bind(&TranscriptSearcherSocketIoClient::on_fail, this));
@@ -32,47 +32,66 @@ class TranscriptSearcherSocketIoClient {
 
         void on_close(sio::client::close_reason const& reason) {
             std::cout << "Connection Closed" << std::endl;
-            running = false;
         }
     
         void on_fail() {
             std::cout << "Connection Failed" << std::endl;
-            running = false;
+        }
+
+        std::string jsonify_results(std::vector<scored_transcript>& results, const std::chrono::nanoseconds duration_ns) {
+            auto duration_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration_ns);
+            std::string results_json = "{\n\t\"files\": [\n";
+            std::string files = "";
+            std::string scores = "";
+            for (unsigned int i = 0; i < results.size(); i++) {
+                auto& element = results[i];
+                std::string file = element.first;
+                std::replace(element.first.begin(), element.first.end(), '\\', '/');
+                files += "\t\t\"" + element.first + "\"";
+                scores += "\t\t" + std::to_string(element.second);
+                if (i != results.size() - 1) {
+                    files += ",";
+                    scores += ",";
+                }
+                files += "\n";
+                scores += "\n";
+            }
+            results_json += files + "\t],\n";
+            results_json += "\t\"scores\": [\n" + scores + "\t],\n";
+            results_json += "\t\"duration\": {\n\t\t\"count\": " + std::to_string(duration_milliseconds.count()) + ",\n";
+            results_json += "\t\t\"unit\": \"ms\"\n";
+            results_json += "\t}\n";
+            results_json += "}";
+            return results_json;
+        }
+
+        void perform_search_handler(std::string const& name, sio::message::ptr const& data, bool isAck, sio::message::list &ack_resp) {
+            if (data->get_flag() == sio::message::flag::flag_array) {
+                std::vector<std::string> search_terms;
+                for (auto& message : data->get_vector()) {
+                    search_terms.push_back(message->get_string());
+                }
+                unsigned int num_best_results = 3;
+                std::vector<scored_transcript> best_transcripts;
+
+                // Time the search function
+                auto start_time = std::chrono::high_resolution_clock::now();
+
+                perform_search(search_terms, num_best_results, best_transcripts);
+
+                // Finish timing search function
+                auto end_time = std::chrono::high_resolution_clock::now();
+                auto duration = end_time - start_time;
+
+                std::string json_response = jsonify_results(best_transcripts, duration);
+                std::cout << json_response << std::endl;
+                client.socket()->emit("results", sio::string_message::create(json_response));
+            }
         }
 
         void bind_events() {
-            client.socket()->on("Message", sio::socket::event_listener_aux([&](std::string const& name, sio::message::ptr const& data, bool isAck, sio::message::list &ack_resp) {
-                if (data->get_flag() == sio::message::flag::flag_string) {
-                    const sio::message::ptr response = sio::string_message::create("Message Response");
-                    std::cout << data->get_string() << std::endl;
-                    ack_resp = sio::message::list(response);
-                }
-            }));
             client.socket()->on("perform_search", sio::socket::event_listener_aux([&](std::string const& name, sio::message::ptr const& data, bool isAck, sio::message::list &ack_resp) {
-                std::vector<std::string> search_terms = {"donate", "lads", "feeling"};
-                unsigned int num_best_results = 3;
-                std::vector<scored_transcript> best_transcripts;
-                perform_search(search_terms, num_best_results, best_transcripts);
-                std::string json_response = "{\n\t\"files\": [\n";
-                std::string files = "";
-                std::string scores = "";
-                for (unsigned int i = 0; i < best_transcripts.size(); i++) {
-                    auto& element = best_transcripts[i];
-                    std::string file = element.first;
-                    std::replace(element.first.begin(), element.first.end(), '\\', '/');
-                    files += "\t\t\"" + element.first + "\"";
-                    scores += "\t\t" + std::to_string(element.second);
-                    if (i != best_transcripts.size() - 1) {
-                        files += ",";
-                        scores += ",";
-                    }
-                    files += "\n";
-                    scores += "\n";
-                }
-                json_response += files + "\t],\n\t";
-                json_response += "\"scores\": [\n" + scores + "\t]\n}";
-                std::cout << json_response << std::endl;
-                client.socket()->emit("results", sio::string_message::create(json_response));
+                perform_search_handler(name, data, isAck, ack_resp);
             }));
         }
 
@@ -81,17 +100,12 @@ class TranscriptSearcherSocketIoClient {
             client.clear_con_listeners();
         }
 
-        bool isRunning() {
-            return running;
-        }
-
         ~TranscriptSearcherSocketIoClient() {
             delete transcript_search_algorithm;
         }
 
     private:
         sio::client client;
-        bool running;
         TranscriptSearchAlgorithm* transcript_search_algorithm = nullptr;
 };
 
@@ -112,7 +126,6 @@ int main (int argc, char** argv) {
     std::string database_path = program.get<std::string>("database_path");
 
     TranscriptSearcherSocketIoClient client(database_path);
-    // while (client.isRunning());
     while (true);
     client.close();
     return 0;
