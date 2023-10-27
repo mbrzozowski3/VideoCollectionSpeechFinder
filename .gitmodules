@@ -1,3 +1,6 @@
 [submodule "transcript_searcher/SQLiteCpp"]
 	path = transcript_searcher/SQLiteCpp
 	url = https://github.com/SRombauts/SQLiteCpp.git
+[submodule "transcript_searcher/socket.io-client-cpp"]
+	path = transcript_searcher/socket.io-client-cpp
+	url = https://github.com/socketio/socket.io-client-cpp.git

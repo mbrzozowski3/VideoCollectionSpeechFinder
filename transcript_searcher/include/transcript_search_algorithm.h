@@ -13,6 +13,9 @@ class TranscriptSearchAlgorithm {
         // Default constructor
         TranscriptSearchAlgorithm() = default;
 
+        // Default destructor
+        virtual ~TranscriptSearchAlgorithm() = default;
+
         // Remove copy constructor and copy assignment
         TranscriptSearchAlgorithm(const TranscriptSearchAlgorithm&) = delete;
         TranscriptSearchAlgorithm& operator= (const TranscriptSearchAlgorithm&) = delete;
