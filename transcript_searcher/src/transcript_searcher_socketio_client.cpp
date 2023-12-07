@@ -40,24 +40,20 @@ class TranscriptSearcherSocketIoClient {
 
         std::string jsonify_results(std::vector<scored_transcript>& results, const std::chrono::nanoseconds duration_ns) {
             auto duration_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration_ns);
-            std::string results_json = "{\n\t\"files\": [\n";
-            std::string files = "";
-            std::string scores = "";
+            std::string results_json = "{\n\t\"videos\": [\n";
             for (unsigned int i = 0; i < results.size(); i++) {
                 auto& element = results[i];
                 std::string file = element.first;
                 std::replace(element.first.begin(), element.first.end(), '\\', '/');
-                files += "\t\t\"" + element.first + "\"";
-                scores += "\t\t" + std::to_string(element.second);
+                results_json += "\t\t{\n";
+                results_json += "\t\t\t\"file\": \"" + element.first + "\",\n";
+                results_json += "\t\t\t\"score\": " + std::to_string(element.second) + "\n";
+                results_json += "\t\t}\n";
                 if (i != results.size() - 1) {
-                    files += ",";
-                    scores += ",";
+                    results_json += ",";
                 }
-                files += "\n";
-                scores += "\n";
             }
-            results_json += files + "\t],\n";
-            results_json += "\t\"scores\": [\n" + scores + "\t],\n";
+            results_json += "\t],\n";
             results_json += "\t\"duration\": {\n\t\t\"count\": " + std::to_string(duration_milliseconds.count()) + ",\n";
             results_json += "\t\t\"unit\": \"ms\"\n";
             results_json += "\t}\n";
