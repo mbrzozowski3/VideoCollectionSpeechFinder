@@ -49,6 +49,8 @@ mkdir build
 git submodule init
 git submodule update --recursive
 cmake -Bbuild
+# On windows use instead:
+# cmake -G "Unix Makefiles" -Bbuild
 cd build
 make
 ```
