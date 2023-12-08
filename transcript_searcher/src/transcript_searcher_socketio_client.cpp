@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 class TranscriptSearcherSocketIoClient {
     public:
@@ -122,7 +124,9 @@ int main (int argc, char** argv) {
     std::string database_path = program.get<std::string>("database_path");
 
     TranscriptSearcherSocketIoClient client(database_path);
-    while (true);
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
     client.close();
     return 0;
 }
